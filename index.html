@@ -2420,6 +2420,11 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#quantile-regression" id="toc-quantile-regression" class="nav-link" data-scroll-target="#quantile-regression">Quantile Regression</a></li>
   </ul></li>
+  <li><a href="#modeling-and-data-analysis" id="toc-modeling-and-data-analysis" class="nav-link" data-scroll-target="#modeling-and-data-analysis">Modeling and Data Analysis</a>
+  <ul class="collapse">
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation">Data Preparation</a></li>
+  <li><a href="#model-specification" id="toc-model-specification" class="nav-link" data-scroll-target="#model-specification">Model Specification</a></li>
+  <li><a href="#data-analysis" id="toc-data-analysis" class="nav-link" data-scroll-target="#data-analysis">Data Analysis</a></li>
   <li><a href="#results-and-discussion" id="toc-results-and-discussion" class="nav-link" data-scroll-target="#results-and-discussion">Results and Discussion</a>
   <ul class="collapse">
   <li><a href="#distribution-of-algebra-1-mean-scale-scores-figure-1" id="toc-distribution-of-algebra-1-mean-scale-scores-figure-1" class="nav-link" data-scroll-target="#distribution-of-algebra-1-mean-scale-scores-figure-1">Distribution of Algebra 1 Mean Scale Scores (Figure 1)</a></li>
@@ -2439,6 +2444,7 @@ window.Quarto = {
   <li><a href="#contribution-of-the-study" id="toc-contribution-of-the-study" class="nav-link" data-scroll-target="#contribution-of-the-study">Contribution of the Study</a></li>
   <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   <li><a href="#recommendations-for-future-research" id="toc-recommendations-for-future-research" class="nav-link" data-scroll-target="#recommendations-for-future-research">Recommendations for Future Research</a></li>
+  </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul></li>
   </ul>
@@ -2485,6 +2491,14 @@ window.Quarto = {
 <p>The interpretation of quantile regression coefficients is similar to that of OLS regression but applies to a specific conditional quantile rather than the conditional mean. A coefficient represents the expected change in the selected conditional quantile of the response variable associated with a one-unit increase in an explanatory variable, while holding all other variables constant. Because a separate model is estimated for each quantile, the estimated effects may differ across the distribution. <span class="citation" data-cites="haile2008determinants">Haile and Nguyen (<a href="#ref-haile2008determinants" role="doc-biblioref">2008</a>)</span> and <span class="citation" data-cites="petscher2014quantile">Petscher and Logan (<a href="#ref-petscher2014quantile" role="doc-biblioref">2014</a>)</span> note that this allows researchers to determine whether relationships are stronger, weaker, or different across lower-, middle-, and upper-performing groups.</p>
 <p>Quantile regression has been widely applied in economics, education, public health, and other social science disciplines. According to <span class="citation" data-cites="koenker2001quantile">Koenker and Hallock (<a href="#ref-koenker2001quantile" role="doc-biblioref">2001</a>)</span>, <span class="citation" data-cites="lecook2013thinking">Lê Cook and Manning (<a href="#ref-lecook2013thinking" role="doc-biblioref">2013</a>)</span>, and <span class="citation" data-cites="beyerlein2014quantile">Beyerlein (<a href="#ref-beyerlein2014quantile" role="doc-biblioref">2014</a>)</span>, the method is especially useful when researchers are interested in understanding relationships across the entire distribution of an outcome rather than only its average. By estimating several conditional quantiles, quantile regression provides a more complete understanding of the relationship between explanatory variables and the response variable.</p>
 <p>The quantile regression models are estimated using the quantreg package in R, which implements the estimation procedure developed by <span class="citation" data-cites="koenker1978">Koenker and Bassett (<a href="#ref-koenker1978" role="doc-biblioref">1978</a>)</span>. The package estimates regression coefficients using linear programming algorithms to solve the quantile optimization problem. Because the check-loss function is not smooth at zero, standard errors are commonly obtained using bootstrap methods, as recommended by <span class="citation" data-cites="koenker2005inequality">Koenker and Ng (<a href="#ref-koenker2005inequality" role="doc-biblioref">2005</a>)</span>. This approach provides reliable statistical inference for the estimated quantile regression coefficients.</p>
+</section>
+</section>
+<section id="modeling-and-data-analysis" class="level1">
+<h1>Modeling and Data Analysis</h1>
+<section id="data-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation">Data Preparation</h2>
+<p>Before statistical modeling, the Spring 2024 Florida Algebra 1 End-of-Course (EOC) assessment data were merged with the 2023 American Community Survey (ACS) 5-Year Estimates using county identifiers, as most Florida public school districts correspond to county boundaries. Districts with missing or suppressed achievement data were excluded, resulting in a final analytic sample of 66 Florida school districts.</p>
+<p>The merged dataset was cleaned and standardized before analysis. Variables were renamed to improve consistency, with the district mean Algebra 1 EOC scale score renamed <code>Mean_Score</code> and the percentage of students scoring at Level 3 or above renamed <code>Level3Plus</code>. Character variables were converted to numeric format where necessary, and ACS population counts were transformed into percentages or rates to facilitate comparisons across districts. The final dataset included the demographic variables <code>pct_white</code>, <code>pct_black</code>, and <code>pct_hispanic</code>, together with the socioeconomic variables <code>poverty_rate</code>, <code>unemployment_rate</code>, <code>median_income</code>, and <code>bachelors_rate</code>. All data preparation and statistical analyses were conducted using R.</p>
 <p>Below is the complete data processing program used to ingest, format, and merge the target education records and census fields.</p>
 <details>
 <summary style="color: #18bc9c; font-weight: bold; cursor: pointer;">
@@ -2623,9 +2637,38 @@ The following objects are masked from &#39;package:stats&#39;:
 </details>
 </div>
 </details></section>
+<section id="model-specification" class="level2">
+<h2 class="anchored" data-anchor-id="model-specification">Model Specification</h2>
+<p>To examine the relationship between district demographic and socioeconomic characteristics and Algebra 1 achievement, both Ordinary Least Squares (OLS) regression and Quantile Regression (QR) models were estimated. The OLS model was first fitted to estimate the average relationship between the explanatory variables and district mean Algebra 1 EOC achievement. The OLS model is expressed as:</p>
+<p><span class="math display">\[
+\begin{aligned}
+Y_i = {} &amp; \beta_0 + \beta_1(\text{pct\_white}) + \beta_2(\text{pct\_black}) + \beta_3(\text{pct\_hispanic}) \\
+&amp; + \beta_4(\text{poverty\_rate}) + \beta_5(\text{unemployment\_rate}) + \beta_6(\text{median\_income}) \\
+&amp; + \beta_7(\text{bachelors\_rate}) + \varepsilon_i
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(Y_i\)</span> represents the district mean Algebra 1 EOC scale score, <span class="math inline">\(\beta_0\)</span> is the intercept, <span class="math inline">\(\beta_1\)</span>–<span class="math inline">\(\beta_7\)</span> are the regression coefficients, and <span class="math inline">\(\varepsilon_i\)</span> is the random error term.</p>
+<p>To investigate whether these relationships varied across different levels of district achievement, Quantile Regression models were estimated at the 10th, 25th, 50th, 75th, and 90th quantiles. The Quantile Regression model is specified as:</p>
+<p><span class="math display">\[
+\begin{aligned}
+Q_{\tau}(Y|X) = {} &amp; \beta_{0}(\tau) + \beta_{1}(\tau)\text{pct\_white} + \beta_{2}(\tau)\text{pct\_black} + \beta_{3}(\tau)\text{pct\_hispanic} \\
+&amp; + \beta_{4}(\tau)\text{poverty\_rate} + \beta_{5}(\tau)\text{unemployment\_rate} \\
+&amp; + \beta_{6}(\tau)\text{median\_income} + \beta_{7}(\tau)\text{bachelors\_rate}
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(Q_{\tau}(Y|X)\)</span> denotes the conditional quantile of the district mean Algebra 1 EOC scale score at quantile <span class="math inline">\(\tau\)</span>, <span class="math inline">\(X\)</span> represents the vector of demographic and socioeconomic predictors, and <span class="math inline">\(\beta(\tau)\)</span> denotes the quantile-specific regression coefficients.</p>
+<p>Both the OLS and Quantile Regression models included the same set of explanatory variables, allowing direct comparison between average effects estimated by OLS and distribution-specific effects estimated by Quantile Regression. Quantile regression models were estimated at <span class="math inline">\(\tau = 0.10, 0.25, 0.50, 0.75,\)</span> and <span class="math inline">\(0.90\)</span>, representing lower-, lower-middle-, median-, upper-middle-, and higher-performing school districts, respectively.</p>
 </section>
-<section id="results-and-discussion" class="level1">
-<h1>Results and Discussion</h1>
+<section id="data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="data-analysis">Data Analysis</h2>
+<p>Data analysis was conducted in four stages using R.</p>
+<p>First, exploratory data analysis was performed to examine the distribution of district Algebra 1 achievement and the relationships between achievement and selected demographic and socioeconomic variables. A histogram was used to assess the distribution of district mean scale scores, while scatterplots with fitted linear trend lines were used to visualize the bivariate relationships between <code>Mean_Score</code> and poverty rate, median household income, bachelor’s degree attainment, and unemployment rate.</p>
+<p>Second, Pearson correlation analysis was conducted to examine associations among the study variables and to assess potential multicollinearity before fitting the regression models.</p>
+<p>Third, an Ordinary Least Squares (OLS) regression model was estimated using the <code>lm()</code> function in R to evaluate the average effects of demographic and socioeconomic characteristics on district Algebra 1 achievement.</p>
+<p>Finally, Quantile Regression models were estimated using the <code>quantreg</code> package in R through the <code>rq()</code> function at the 10th, 25th, 50th, 75th, and 90th quantiles. Estimating multiple quantiles enabled the examination of how predictor effects differed across lower-, middle-, and higher-achieving districts, providing insights that cannot be obtained from mean-based regression alone. Statistical significance for both OLS and Quantile Regression models was evaluated at the 5% significance level (<span class="math inline">\(\alpha = 0.05\)</span>).</p>
+</section>
+<section id="results-and-discussion" class="level2">
+<h2 class="anchored" data-anchor-id="results-and-discussion">Results and Discussion</h2>
 <p>This section presents the findings of the study in the order of the analyses conducted. Each subsection briefly describes the statistical results, provides interpretation, situates findings within existing literature, and explicitly connects outcomes to the research questions.</p>
 <div class="cell">
 <details class="code-fold">
@@ -3349,6 +3392,7 @@ bachelors_rate      0.47533      0.37785   0.89604</code></pre>
 <p>Future studies should incorporate school-level variables such as attendance, instructional quality, and per-pupil funding.</p>
 <p>Comparative studies across multiple states would also help determine whether these patterns are unique to Florida or nationally consistent.</p>
 <hr>
+</section>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
